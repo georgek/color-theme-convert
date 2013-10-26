@@ -1,0 +1,11 @@
+* color-theme-convert: converts emacs color-theme themes to deftheme
+
+** Overview
+   This is a tool for converting the older color-theme style themes to the
+   newer deftheme type.
+
+** Usage
+   Try =color-theme-convert= and provide a name of a file with color-theme
+   themes in it.
+
+#+OPTIONS: author:nil email:nil toc:nil timestamp:nil
