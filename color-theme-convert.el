@@ -6,6 +6,7 @@
 ;; Created: 20131026
 ;; Version: 0.1.0
 ;; Status: experimental
+;; Package-Requires: ((cl-lib "0.2"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -27,6 +28,8 @@
 ;;; Converts color-theme themes to the current deftheme type.
 
 ;;; Code:
+
+(require 'cl-lib)
 
 (defun color-theme-convert (filename)
   (interactive
@@ -93,3 +96,5 @@
             ,@(mapcar #'quoted variables))
           `(provide-theme ',name))))
 
+(provide 'color-theme-convert)
+;;; color-theme-convert.el ends here
