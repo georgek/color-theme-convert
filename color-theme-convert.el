@@ -65,12 +65,31 @@
                  name-split)
                "-")))
 
+(defun quoted (form)
+  (list 'quote form))
+
 (defun color-theme-convert-form (form)
-  (let ((theme-form (cadadr
-                     (cl-find-if
-                      (lambda (f) (and (consp f)
-                                       (eq (car f)
-                                           (intern "color-theme-install"))))
-                      form))))
-    theme-form))
+  (let* ((theme-form (cadadr
+                      (cl-find-if
+                       (lambda (f) (and (consp f)
+                                        (eq (car f)
+                                            (intern "color-theme-install"))))
+                       form)))
+         name frame-params variables faces)
+    ;; get pieces (based on `color-theme-canonic')
+    (setq name (intern (color-theme-convert-name
+                        (symbol-name (pop theme-form)))))
+    (setq frame-params (pop theme-form))
+    (when (listp (caar theme-form))
+      (setq variables (pop theme-form)))
+    (setq faces theme-form)
+    ;; set up deftheme form
+    (list `(deftheme ,name)
+          `(custom-theme-set-faces
+            ',name
+            ,@(mapcar #'quoted faces))
+          `(custom-theme-set-variables
+            ',name
+            ,@(mapcar #'quoted variables))
+          `(provide-theme ',name))))
 
