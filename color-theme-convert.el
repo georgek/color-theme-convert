@@ -56,6 +56,15 @@
        (symbolp (cadr form))
        (string= (substring (symbol-name (cadr form)) 0 11) "color-theme")))
 
+(defun color-theme-convert-name (name)
+  (let ((name-split (split-string name "-")))
+    (mapconcat #'identity
+               (if (and (string= (car name-split) "color")
+                        (string= (cadr name-split) "theme"))
+                   (cddr name-split)
+                 name-split)
+               "-")))
+
 (defun color-theme-convert-form (form)
   (let ((theme-form (cadadr
                      (cl-find-if
