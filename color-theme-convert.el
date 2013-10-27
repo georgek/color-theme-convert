@@ -75,6 +75,7 @@
   (let ((face-plist (cadr (assq (intern "t") default-face)))
         (foreground (cdr (assq (intern "foreground-color") frame-params)))
         (background (cdr (assq (intern "background-color") frame-params))))
+    (setq face-plist (remq (intern "nil") face-plist))
     (when foreground
       (setq face-plist
             (plist-put face-plist (intern ":foreground") foreground)))
