@@ -31,31 +31,49 @@
 
 (require 'cl-lib)
 
-(defun color-theme-convert (filename)
+(defvar color-theme-convert-obarray)
+
+(defmacro intern-obs (name)
+  `(intern ,name color-theme-convert-obarray))
+
+(defun color-theme-convert (filein)
   (interactive
-   (list (read-file-name "File: ")))
+   (list (read-file-name "File in: ")))
   (with-temp-buffer
-    (insert-file-contents filename)
-    (color-theme-convert-buffer (current-buffer))))
+    (insert-file-contents filein)
+    (color-theme-convert-buffer (current-buffer)
+                                (get-buffer-create "*test*"))))
 
 ;;; note we set up a new obarray to avoid polluting the current obarray with
 ;;; stuff from `read'
 (defun color-theme-convert-buffer (buffer)
-  (let ((obarray (make-vector 1511 0))
+  (interactive
+   (list (current-buffer)))
+  (let ((color-theme-convert-obarray (make-vector 1511 0))
         (forms-left t)
         (form nil)
         (converted-forms (list)))
-    (while forms-left
-      (condition-case nil
-          (setq form (read buffer))
-        (error (setq forms-left nil)))
-      (when (color-theme-convert-defun-p form)
-        (push (color-theme-convert-form form) converted-forms))
-      (setq form nil))
-    converted-forms))
+    (with-current-buffer buffer
+      (beginning-of-buffer)
+      (while forms-left
+        (condition-case nil
+            (let ((obarray color-theme-convert-obarray))
+             (setq form (read buffer)))
+          (error (setq forms-left nil)))
+        (when (color-theme-convert-defun-p form)
+          (push (color-theme-convert-form form) converted-forms))
+        (setq form nil))
+      ;; print converted forms
+      (erase-buffer)
+      (cl-dolist (converted-form converted-forms)
+        (insert (format ";;; %s theme, converted automatically using \
+color-theme-convert\n"
+                        (cl-cadar converted-form)))
+        (cl-dolist (form converted-form)
+          (pp form buffer))))))
 
 (defun color-theme-convert-defun-p (form)
-  (and (eq (intern "defun") (car form))
+  (and (eq (intern-obs "defun" ) (car form))
        (symbolp (cadr form))
        (string= (substring (symbol-name (cadr form)) 0 11) "color-theme")))
 
@@ -72,38 +90,39 @@
   (list 'quote form))
 
 (defun color-theme-convert-default-face (default-face frame-params)
-  (let ((face-plist (cadr (assq (intern "t") default-face)))
-        (foreground (cdr (assq (intern "foreground-color") frame-params)))
-        (background (cdr (assq (intern "background-color") frame-params))))
-    (setq face-plist (remq (intern "nil") face-plist))
+  (let ((face-plist (cadr (assq (intern-obs "t") default-face)))
+        (foreground (cdr (assq (intern-obs "foreground-color") frame-params)))
+        (background (cdr (assq (intern-obs "background-color") frame-params))))
+    (setq face-plist (remq (intern-obs "nil") face-plist))
     (when foreground
       (setq face-plist
-            (plist-put face-plist (intern ":foreground") foreground)))
+            (plist-put face-plist (intern-obs ":foreground") foreground)))
     (when background
       (setq face-plist
-            (plist-put face-plist (intern ":background") background)))
-    (setcar (cdr (assq (intern "t") default-face)) face-plist)
+            (plist-put face-plist (intern-obs ":background") background)))
+    (setcar (cdr (assq (intern-obs "t") default-face)) face-plist)
     default-face))
 
 (defun color-theme-convert-form (form)
-  (let* ((theme-form (cadadr
+  (let* ((theme-form (cl-cadadr
                       (cl-find-if
                        (lambda (f) (and (consp f)
                                         (eq (car f)
-                                            (intern "color-theme-install"))))
+                                            (intern-obs
+                                             "color-theme-install"))))
                        form)))
          name frame-params variables faces)
     ;; get pieces (based on `color-theme-canonic')
-    (setq name (intern (color-theme-convert-name
-                        (symbol-name (pop theme-form)))))
+    (setq name (intern-obs (color-theme-convert-name
+                            (symbol-name (pop theme-form)))))
     (setq frame-params (pop theme-form))
     (when (listp (caar theme-form))
       (setq variables (pop theme-form)))
     (setq faces theme-form)
     ;; put frame-params in default face
-    (setcar (cdr (assq (intern "default") faces))
+    (setcar (cdr (assq (intern-obs "default") faces))
             (color-theme-convert-default-face
-             (cadr (assq (intern "default") faces))
+             (cadr (assq (intern-obs "default") faces))
              frame-params))
     ;; set up deftheme form
     (list `(deftheme ,name)
