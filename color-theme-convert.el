@@ -76,9 +76,11 @@
         (foreground (cdr (assq (intern "foreground-color") frame-params)))
         (background (cdr (assq (intern "background-color") frame-params))))
     (when foreground
-      (plist-put face-plist (intern ":foreground") foreground))
+      (setq face-plist
+            (plist-put face-plist (intern ":foreground") foreground)))
     (when background
-      (plist-put face-plist (intern ":background") background))
+      (setq face-plist
+            (plist-put face-plist (intern ":background") background)))
     (setcar (cdr (assq (intern "t") default-face)) face-plist)
     default-face))
 
