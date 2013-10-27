@@ -100,6 +100,11 @@
     (when (listp (caar theme-form))
       (setq variables (pop theme-form)))
     (setq faces theme-form)
+    ;; put frame-params in default face
+    (setcar (cdr (assq (intern "default") faces))
+            (color-theme-convert-default-face
+             (cadr (assq (intern "default") faces))
+             frame-params))
     ;; set up deftheme form
     (list `(deftheme ,name)
           `(custom-theme-set-faces
