@@ -72,14 +72,14 @@
   (list 'quote form))
 
 (defun color-theme-convert-default-face (default-face frame-params)
-  (let ((face-plist (cadr (assq t default-face)))
-        (foreground (cdr (assq 'foreground-color frame-params)))
-        (background (cdr (assq 'background-color frame-params))))
+  (let ((face-plist (cadr (assq (intern "t") default-face)))
+        (foreground (cdr (assq (intern "foreground-color") frame-params)))
+        (background (cdr (assq (intern "background-color") frame-params))))
     (when foreground
-      (setq face-plist (plist-put face-plist :foreground foreground)))
+      (plist-put face-plist (intern ":foreground") foreground))
     (when background
-      (setq face-plist (plist-put face-plist :background background)))
-    (setcar (cdr (assq t default-face)) face-plist)
+      (plist-put face-plist (intern ":background") background))
+    (setcar (cdr (assq (intern "t") default-face)) face-plist)
     default-face))
 
 (defun color-theme-convert-form (form)
