@@ -5,7 +5,6 @@
    newer deftheme type.
 
 ** Usage
-   Try =color-theme-convert= and provide a name of a file with color-theme
-   themes in it.
+   Try =color-theme-convert-buffer= in a buffer containing color-theme themes.
 
 #+OPTIONS: author:nil email:nil toc:nil timestamp:nil
