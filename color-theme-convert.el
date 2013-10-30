@@ -133,6 +133,28 @@ color-theme-convert\n"
             ',name
             ,@(mapcar #'quoted variables))
           `(provide-theme ',name))))
+(defmacro ctc-doplist (spec &rest body)
+  "Loop over a plist.
+Evaluate BODY with KEY and VAL bound to each pair from PLIST, in
+turn.
+
+\(fn (KEY VAL PLIST) BODY...)"
+  (declare (indent 1))
+  (let ((temp '--ctc-doplist-tail--)
+        (key (nth 0 spec))
+        (val (nth 1 spec))
+        (plist (nth 2 spec)))
+    `(let ((,temp ,plist)
+           ,key
+           ,val)
+       (while ,temp
+         (setq ,key (car ,temp))
+         (if (cdr ,temp)
+             (setq ,temp (cdr ,temp) ,val (car ,temp))
+           (setq ,val nil))
+         ,@body
+         (setq ,temp (cdr ,temp))))))
+
 
 (provide 'color-theme-convert)
 ;;; color-theme-convert.el ends here
