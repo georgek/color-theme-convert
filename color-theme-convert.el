@@ -86,7 +86,7 @@ color-theme-convert\n"
                  name-split)
                "-")))
 
-(defun quoted (form)
+(defun color-theme-convert-quoted (form)
   (list 'quote form))
 
 (defun color-theme-convert-default-face (default-face frame-params)
@@ -128,11 +128,12 @@ color-theme-convert\n"
     (list `(deftheme ,name)
           `(custom-theme-set-faces
             ',name
-            ,@(mapcar #'quoted faces))
+            ,@(mapcar #'color-theme-convert-quoted faces))
           `(custom-theme-set-variables
             ',name
-            ,@(mapcar #'quoted variables))
+            ,@(mapcar #'color-theme-convert-quoted variables))
           `(provide-theme ',name))))
+
 (defmacro ctc-doplist (spec &rest body)
   "Loop over a plist.
 Evaluate BODY with KEY and VAL bound to each pair from PLIST, in
