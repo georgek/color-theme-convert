@@ -72,10 +72,14 @@ color-theme-convert\n"
         (cl-dolist (form converted-form)
           (pp form buffer))))))
 
+(defun color-theme-convert-name-p (string)
+  (and (> (length string) 12)
+       (string= (substring string 0 12) "color-theme-")))
+
 (defun color-theme-convert-defun-p (form)
   (and (eq (intern-obs "defun" ) (car form))
        (symbolp (cadr form))
-       (string= (substring (symbol-name (cadr form)) 0 11) "color-theme")))
+       (color-theme-convert-name-p (symbol-name (cadr form)))))
 
 (defun color-theme-convert-name (name)
   (let ((name-split (split-string name "-")))
