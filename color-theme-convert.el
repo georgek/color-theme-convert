@@ -32,6 +32,10 @@
 (require 'cl-lib)
 
 (defvar color-theme-convert-obarray)
+(defmacro color-theme-convert-defun (name arglist &rest body)
+  `(progn
+     (when(add-to-list 'color-theme-convert-known-themes ,name))
+     (defun ,name ,arglist ,@body)))
 
 (defmacro intern-obs (name)
   `(intern ,name color-theme-convert-obarray))
