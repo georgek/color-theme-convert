@@ -40,6 +40,19 @@
 (defmacro intern-obs (name)
   `(intern ,name color-theme-convert-obarray))
 
+(defun copy-obarray (obarray)
+  (let ((newobarray (make-vector (length obarray) 0))
+        newsymbol)
+    (mapatoms (lambda (o)
+                (setq newsymbol (intern (symbol-name o) newobarray))
+                (when (boundp o)
+                  (set newsymbol (symbol-value o)))
+                (when (fboundp o)
+                  (fset newsymbol (symbol-function o)))
+                (setplist newsymbol (symbol-plist o)))
+              obarray)
+    newobarray))
+
 (defun color-theme-convert (filein)
   (interactive
    (list (read-file-name "File in: ")))
