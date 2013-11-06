@@ -124,6 +124,24 @@ color-theme-convert\n"
     (setcar (cdr (assq (intern-obs "t") default-face)) face-plist)
     default-face))
 
+(defun color-theme-convert-install (theme)
+  "Takes the same input as `color-theme-install' but outputs
+  theme in deftheme format."
+  (let (name frame-params variables faces)
+    ;; get pieces (based on `color-theme-canonic')
+    (setq name (intern-obs (color-theme-convert-name
+                            (symbol-name (pop theme-form)))))
+    (setq frame-params (pop theme-form))
+    (when (listp (caar theme-form))
+      (setq variables (pop theme-form)))
+    (setq faces theme-form)
+    ;; put frame-params in default face
+    (setcar (cdr (assq (intern-obs "default") faces))
+            (color-theme-convert-default-face
+             (cadr (assq (intern-obs "default") faces))
+             frame-params))
+    (list name faces variables)))
+
 (defun color-theme-convert-form (form)
   (let* ((theme-form (cl-cadadr
                       (cl-find-if
